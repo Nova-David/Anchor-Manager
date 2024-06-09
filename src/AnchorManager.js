@@ -26,6 +26,12 @@ class Vector {
         this.z = vector.z;
     }
 
+    clone() {
+        const clone = new Vector();
+        clone.copy(this);
+        return clone;
+    }
+
     addLocal(x, y, z) {
         this.x += x;
         this.y += y;
@@ -246,7 +252,8 @@ class Anchor {
 
     updateChildren(displacement = null) {
         for (const child of this.children) {
-            child.update(displacement);
+            if (displacement) child.update(displacement.clone());
+            else child.update();
         }
     }
 
@@ -289,7 +296,6 @@ class Anchor {
 
     update(displacement = null) {
         if (displacement) {
-            console.log("Parent moved", displacement);
             if (this.parent.buffer) {
                 displacement.addVec(this.parent.getPointDisplacement(this.parentPoint));
             }
@@ -298,9 +304,7 @@ class Anchor {
             this.updateChildren(displacement);
 
             return;
-        }
-
-        if (this.elem.moved()) {
+        } else if (this.elem.moved()) {
             displacement = this.elem.getPositionDisplacement();
             this.elem.updatePosition();
             console.log("I MOVED");

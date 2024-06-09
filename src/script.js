@@ -173,7 +173,19 @@ const cube2 = new THREE.Mesh(
 );
 
 cube2.scale.set(0.25, 0.25, 0.25);
+cube2.name = "RIGHT CUBE";
 scene.add(cube2);
+
+const cube3 = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshStandardMaterial({
+        color: 0xff0000
+    })
+);
+
+cube3.scale.set(0.25, 0.25, 0.25);
+cube3.name = "LEFT CUBE";
+scene.add(cube3);
 
 // const cube3 = new THREE.Mesh(
 //     new THREE.BoxGeometry(1, 1, 1),
@@ -208,6 +220,19 @@ const anchors = new Anchor.AnchorManager();
 
 const cubeAnc = anchors.new(cube);
 const cubeAnc2 = cubeAnc.attach(cube2, {
+    parent: [
+        Anchor.RIGHT,
+        Anchor.TOP,
+        Anchor.FRONT
+    ],
+    child: [
+        Anchor.RIGHT,
+        Anchor.BOTTOM,
+        Anchor.FRONT
+    ]
+});
+
+const cubeAnc4 = cubeAnc.attach(cube3, {
     parent: [
         Anchor.LEFT,
         Anchor.TOP,
