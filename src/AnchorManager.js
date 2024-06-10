@@ -123,6 +123,7 @@ class Element {
     }
 
     updatePosition() {
+        this.lastPosition.copy(this.position);
         this.position.copy(this.object.position);
     }
 
@@ -257,23 +258,14 @@ class Anchor {
         this.elem.updateSize();
     }
 
-    getRelativePosition() {
-        const displacement = this.parent.getPoint(this.anchorPoint);
-        displacement.subVec(this.elem.getPoint(this.originPoint));
-
-        return displacement;
-    }
 
     displace(displacement) {
         this.elem.moveBy(displacement);
     }
 
-    updateChildren(displacement = null) {
+    updateChildren(params = {}) {
         for (const child of this.children) {
-            // console.log(child.elem.object.name, "UPDATING")
-            child.update();
-            // if (displacement) child.update(displacement.clone())
-            // else child.update(displacement);
+            child.update(params);
         }
     }
 
@@ -320,7 +312,7 @@ class Anchor {
         return child;
     }
 
-    attachAnchor(anchor, points) {
+    attachAnchor(anchor, params) {
         anchor.addParent(this.elem, params);
         this.children.push(anchor);
 
@@ -348,61 +340,62 @@ class Anchor {
             this.elem.object.scale.y = (this.parent.object.scale.y - this.padding.y*2) + 0.003;
         if (this.fill.z)
             this.elem.object.scale.z = (this.parent.object.scale.z - this.padding.z*2) + 0.003;
-
-        this.elem.resized();
     }
 
-    update(displacement = null) {
-        // if (displacement) {
-        //     // console.log("Parent moved", displacement);
-        //     if (this.parent.buffer) {
-        //         displacement.addVec(this.parent.getPointDisplacement(this.anchorPoint));
-        //         this.refill();
-        //     }
+    relMoved() {
+        if (this.relativePosition && 
+            !this.lastPosition.equals(this.relativePosition)) {
+            this.lastPosition.copy(this.relativePosition);
+            return true;
+        }
 
-        //     this.displace(displacement);
-        //     this.updateChildren(displacement);
-        //     this.elem.updateSize();
+        return false;
+    }
 
-        //     return;
-        // }
+    getRelativePosition() {
+        const displacement = this.parent.getPoint(this.anchorPoint);
+        displacement.subVec(this.elem.getPoint(this.originPoint));
 
+        return displacement.offset();
+    }
+
+    resetPosition() {
+        const displacement = this.getRelativePosition();
+        displacement.addVec(this.relativePosition);
+        this.elem.to(this.parent.position);
+        this.elem.moveBy(displacement);
+    }
+
+    update(params = {}) {
         if (this.padding)
             this.refill();
 
-        if (this.parent && this.parent.moved()) {
-            const displacement = this.parent.getPositionDisplacement();
-            this.displace(displacement);
-        } else if (this.parent && this.parent.resized()) {
-            console.log("Parent resized");
-            const displacement = this.getPosition();
-            console.log(displacement);
-            this.elem.to(this.parent.position);
-            this.elem.moveBy(displacement);
+        if (params.moved) {
+            this.resetPosition();
+            this.elem.updatePosition();
+            this.updateChildren({moved: true});
+            return;
+        } else if (params.resized) {
+            this.resetPosition();
+        } 
 
+        if (this.relMoved()) {
+            console.log("Relative pos moved", this.elem.object.name)
+            this.resetPosition();
+            this.elem.updatePosition();
+            this.updateChildren({moved: true})
+        } else if (this.elem.moved()) {
+            this.updateChildren({moved: true})
         } else if (this.elem.resized()) {
-            console.log("I RESIZED");
+            if (this.parent) {
+                this.resetPosition();
+                this.elem.updatePosition();
+            } 
 
-
+            this.updateChildren({resized: true});
+        } else {
+            this.updateChildren();
         }
-
-        this.updateChildren();
-
-        // if (this.elem.moved()) {
-        //     displacement = this.elem.getPositionDisplacement();
-        //     this.elem.updatePosition();
-        //     this.updateChildren(displacement);
-        // } else if (this.elem.resized()) {
-        //     if (this.parent) {
-        //         displacement = this.elem.getPointDisplacement(this.originPoint, -1);
-        //         this.displace(displacement);
-        //     } else
-        //         displacement = new Vector();
-
-        //     this.updateChildren(displacement);
-        //     this.elem.updateSize();
-        // } else
-        //     this.updateChildren();
     }
 
     findAnchor(object) {

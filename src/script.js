@@ -237,7 +237,7 @@ const cubeAnc2 = anchors.attach(cube2, {
     }
 }).to(cube);
 
-box2.add(cubeAnc2.relativePosition, 'y').min(-3).max(3).step(0.01);
+// box2.add(cubeAnc2.relativePosition, 'y').min(-3).max(3).step(0.01);
 box2.add(cubeAnc2.padding, 'x').min(0).max(0.5).step(0.01);
 
 // anchors.attach(cube3, {
@@ -312,9 +312,9 @@ const animate = () => {
     cube.position.x += (params.x - cube.position.x) * 0.1;
     cube.position.y += (params.y - cube.position.y) * 0.1;
     cube.position.z += (params.z - cube.position.z) * 0.1;
-    cubeAnc2.addX((params.x2 - cubeAnc2.relativePosition.x) * 0.1);
-    cubeAnc2.addY((params.y2 - cubeAnc2.relativePosition.y) * 0.1);
-    cubeAnc2.addZ((params.z2 - cubeAnc2.relativePosition.z) * 0.1);
+    cubeAnc2.relativePosition.x += ((params.x2 - cubeAnc2.relativePosition.x) * 0.1);
+    cubeAnc2.relativePosition.y += ((params.y2 - cubeAnc2.relativePosition.y) * 0.1);
+    cubeAnc2.relativePosition.z += ((params.z2 - cubeAnc2.relativePosition.z) * 0.1);
     if (cubeAnc3) {
         cubeAnc3.addX((params.x3 - cubeAnc3.relativePosition.x) * 0.1);
         cubeAnc3.addY((params.y3 - cubeAnc3.relativePosition.y) * 0.1);
