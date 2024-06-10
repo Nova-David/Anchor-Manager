@@ -63,33 +63,34 @@ const addBox = () => {
     );
 
     scene.add(newCube);
+    newCube.name = "TEAL";
     newCube.scale.set(0.125, 0.125, 0.125);
 
     let parentBox;
     switch (boxParams.box) {
         case 0:
-            parentBox = cubeAnc;
+            parentBox = cube;
             break;
         case 1:
-            parentBox = cubeAnc2;
+            parentBox = cube2;
             break;
         case 2:
-            parentBox = cubeAnc3;
+            // parentBox = cube3;
             break;
     }
 
-    const newAnchor = parentBox.attach(newCube, {
-        parent: [
-            boxParams.parent.x,
-            boxParams.parent.y,
-            boxParams.parent.z
-        ],
-        child: [
-            boxParams.child.x,
-            boxParams.child.y,
-            boxParams.child.z
-        ]
-    });
+    const newAnchor = anchors.attach(newCube, {
+        anchor: {
+            x: boxParams.parent.x,
+            y: boxParams.parent.y,
+            z: boxParams.parent.z
+        },
+        origin: {
+            x: boxParams.child.x,
+            y: boxParams.child.y,
+            z: boxParams.child.z
+        }
+    }).to(parentBox);
 
     cubeAnc3 = newAnchor;
     params.width3 = 0.125;
@@ -147,6 +148,7 @@ box2.add(params, 'x2').min(-3).max(3).step(0.01);
 box2.add(params, 'y2').min(-3).max(3).step(0.01);
 box2.add(params, 'z2').min(-3).max(3).step(0.01);
 
+
 const box3 = gui.addFolder("New Box");
 box3.add(params, 'width3').min(0.125).max(10).step(0.01).name("Width");
 box3.add(params, 'height3').min(0.125).max(10).step(0.01).name("Height");
@@ -163,6 +165,7 @@ const cube = new THREE.Mesh(
     })
 );
 cube.position.set(params.x, params.y, params.z);
+cube.name = "Noir";
 scene.add(cube);
 
 const cube2 = new THREE.Mesh(
@@ -173,19 +176,19 @@ const cube2 = new THREE.Mesh(
 );
 
 cube2.scale.set(0.25, 0.25, 0.25);
-cube2.name = "RIGHT CUBE";
+cube2.name = "Reddy";
 scene.add(cube2);
 
-const cube3 = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshStandardMaterial({
-        color: 0xff0000
-    })
-);
+// const cube3 = new THREE.Mesh(
+//     new THREE.BoxGeometry(1, 1, 1),
+//     new THREE.MeshStandardMaterial({
+//         color: 0xff0000
+//     })
+// );
 
-cube3.scale.set(0.25, 0.25, 0.25);
-cube3.name = "LEFT CUBE";
-scene.add(cube3);
+// cube3.scale.set(0.25, 0.25, 0.25);
+// cube3.name = "LEFT CUBE";
+// scene.add(cube3);
 
 // const cube3 = new THREE.Mesh(
 //     new THREE.BoxGeometry(1, 1, 1),
@@ -218,32 +221,37 @@ wall.position.z = -0.001;
 // ANCHORS
 const anchors = new Anchor.AnchorManager();
 
-const cubeAnc = anchors.new(cube);
-const cubeAnc2 = cubeAnc.attach(cube2, {
-    parent: [
-        Anchor.RIGHT,
-        Anchor.TOP,
-        Anchor.FRONT
-    ],
-    child: [
-        Anchor.RIGHT,
-        Anchor.BOTTOM,
-        Anchor.FRONT
-    ]
-});
+const cubeAnc2 = anchors.attach(cube2, {
+    anchor: {
+        x: Anchor.FILL,
+        y: Anchor.FILL,
+        z: Anchor.FRONT
+    },
+    origin: {
+        x: Anchor.LEFT,
+        y: Anchor.BOTTOM,
+        z: Anchor.FRONT
+    },
+    padding: {
+        x: 0.2
+    }
+}).to(cube);
 
-const cubeAnc4 = cubeAnc.attach(cube3, {
-    parent: [
-        Anchor.LEFT,
-        Anchor.TOP,
-        Anchor.FRONT
-    ],
-    child: [
-        Anchor.LEFT,
-        Anchor.BOTTOM,
-        Anchor.FRONT
-    ]
-});
+box2.add(cubeAnc2.relativePosition, 'y').min(-3).max(3).step(0.01);
+box2.add(cubeAnc2.padding, 'x').min(0).max(0.5).step(0.01);
+
+// anchors.attach(cube3, {
+//     parent: [
+//         Anchor.LEFT,
+//         Anchor.TOP,
+//         Anchor.FRONT
+//     ],
+//     child: [
+//         Anchor.LEFT,
+//         Anchor.BOTTOM,
+//         Anchor.FRONT
+//     ]
+// }).to(cube);
 // const cubeAnc3 = cubeAnc2.attach(cube3, {
 //     parent: [
 //         Anchor.LEFT,
@@ -292,8 +300,8 @@ const animate = () => {
     cube.scale.x += (params.width - cube.scale.x) * 0.1;
     cube.scale.y += (params.height - cube.scale.y) * 0.1;
     cube.scale.z += (params.projection - cube.scale.z) * 0.1;
-    cubeAnc2.scale.x += (params.width2 - cubeAnc2.scale.x) * 0.1;
-    cubeAnc2.scale.y += (params.height2 - cubeAnc2.scale.y) * 0.1;
+    // cubeAnc2.scale.x += (params.width2 - cubeAnc2.scale.x) * 0.1;
+    // cubeAnc2.scale.y += (params.height2 - cubeAnc2.scale.y) * 0.1;
     cubeAnc2.scale.z += (params.projection2 - cubeAnc2.scale.z) * 0.1;
     if (cubeAnc3) {    
         cubeAnc3.scale.x += (params.width3 - cubeAnc3.scale.x) * 0.1;
